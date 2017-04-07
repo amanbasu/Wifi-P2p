@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Environment;
 import android.widget.Toast;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,6 +38,7 @@ public class TransferFile extends IntentService{
             boolean action = intent.getExtras().getBoolean("SEND_FILE");
             String fileUri = intent.getExtras().getString(EXTRAS_FILE_PATH);
             String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
+            String FILE_EXTENSION = intent.getExtras().getString("EXTENSION");
             Socket socket = new Socket();
             int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
 
@@ -47,6 +50,11 @@ public class TransferFile extends IntentService{
 
                 System.out.println("Client Socket Connected.");
                 if(action){
+                    DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+                    dOut.writeByte(1);
+                    dOut.writeUTF(FILE_EXTENSION);
+                    dOut.flush();
+
                     OutputStream stream = socket.getOutputStream();
                     ContentResolver cr = context.getContentResolver();
                     InputStream is = null;
@@ -57,10 +65,17 @@ public class TransferFile extends IntentService{
                         e.printStackTrace();
                     }
                     MainActivity.copyFile(is, stream);
+                    dOut.close();
                 }else{
+                    DataInputStream dIn = new DataInputStream(socket.getInputStream());
+                    if(dIn.readByte()==1){
+                        FILE_EXTENSION = dIn.readUTF();
+                        System.out.println("Extension read: "+ FILE_EXTENSION);
+                    }
+
                     final File f = new File(Environment.getExternalStorageDirectory() + "/"
                             + context.getPackageName() + "/wifip2pshared-" + System.currentTimeMillis()
-                            + ".jpg");
+                            + "." + FILE_EXTENSION);
 
                     File dirs = new File(f.getParent());
                     if (!dirs.exists())
@@ -69,11 +84,25 @@ public class TransferFile extends IntentService{
 
                     InputStream inputstream = socket.getInputStream();
                     MainActivity.copyFile(inputstream, new FileOutputStream(f));
-                    System.out.println("File copied to device.");
+                    dIn.close();
 
                     Intent openFile = new Intent();
                     openFile.setAction(android.content.Intent.ACTION_VIEW);
-                    openFile.setDataAndType(Uri.parse("file://" + f.getAbsolutePath()), "image/*");
+                    String FILE_TYPE;
+                    if(FILE_EXTENSION.equals("wav") || FILE_EXTENSION.equals("mp3"))
+                        FILE_TYPE = "audio/*";
+                    else if(FILE_EXTENSION.equals("jpg") || FILE_EXTENSION.equals("jpeg") || FILE_EXTENSION.equals("png") || FILE_EXTENSION.equals("gif"))
+                        FILE_TYPE = "image/*";
+                    else if(FILE_EXTENSION.equals("txt"))
+                        FILE_TYPE = "text/plain";
+                    else if(FILE_EXTENSION.equals("3gp") || FILE_EXTENSION.equals("mpg") || FILE_EXTENSION.equals("mpeg") ||
+                            FILE_EXTENSION.equals("mpe") || FILE_EXTENSION.equals("mp4") || FILE_EXTENSION.equals("avi"))
+                        FILE_TYPE = "video/*";
+                    else if(FILE_EXTENSION.equals("pdf"))
+                        FILE_TYPE = "application/pdf";
+                    else
+                        FILE_TYPE = "application/*";
+                    openFile.setDataAndType(Uri.parse("file://" + f.getAbsolutePath()), FILE_TYPE);
                     openFile.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(openFile);
                 }

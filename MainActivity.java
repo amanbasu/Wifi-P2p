@@ -23,12 +23,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,6 +41,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements WifiP2pManager.PeerListListener, WifiP2pManager.ConnectionInfoListener{
@@ -56,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
     Intent serviceIntent;
     final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE=0;
     boolean PERMISSIONS_FLAG = false, SERVICE_ON = false, isHost = false, isConnected = false;
+    String FILE_EXTENSION = "jpg";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
+                intent.setType("*/*");
                 startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
             }
         });
@@ -161,6 +166,7 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
                         serviceIntent.putExtra(TransferFile.EXTRAS_FILE_PATH, "");
                         serviceIntent.putExtra(TransferFile.EXTRAS_GROUP_OWNER_ADDRESS, info.groupOwnerAddress.getHostAddress());
                         serviceIntent.putExtra(TransferFile.EXTRAS_GROUP_OWNER_PORT, 8988);
+                        serviceIntent.putExtra("EXTENSION", "jpg");
                         serviceIntent.putExtra("SEND_FILE", false);
                         MainActivity.this.startService(serviceIntent);
                         SERVICE_ON = true;
@@ -182,10 +188,27 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
         }
     }
 
+    public String getExtensionType(Uri uri) {
+        String extension;
+        //Check uri format to avoid null
+        if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
+            //If scheme is a content
+            final MimeTypeMap mime = MimeTypeMap.getSingleton();
+            extension = mime.getExtensionFromMimeType(this.getContentResolver().getType(uri));
+        } else {
+            //If scheme is a File
+            //This will replace white spaces with %20 and also other special characters. This will avoid returning null values on file name with spaces and special characters.
+            extension = MimeTypeMap.getFileExtensionFromUrl(Uri.fromFile(new File(uri.getPath())).toString());
+        }
+        return extension;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(data!=null) {
             Uri uri = data.getData();
+            System.out.println("File extension: "+getExtensionType(uri));
+            System.out.println("Bytes: "+ Arrays.toString(getExtensionType(uri).getBytes()));
             if(isHost){
                 new FileServerAsyncTask(MainActivity.this, uri).execute();
             }else{
@@ -194,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
                 serviceIntent.putExtra(TransferFile.EXTRAS_FILE_PATH, uri.toString());
                 serviceIntent.putExtra(TransferFile.EXTRAS_GROUP_OWNER_ADDRESS, info.groupOwnerAddress.getHostAddress());
                 serviceIntent.putExtra(TransferFile.EXTRAS_GROUP_OWNER_PORT, 8988);
+                serviceIntent.putExtra("EXTENSION", getExtensionType(uri));
                 serviceIntent.putExtra("SEND_FILE", true);
                 this.startService(serviceIntent);
                 SERVICE_ON = true;
@@ -407,11 +431,17 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
                 System.out.println("Server Socket Connected.");
 
                 if(uri == null){
-                    final File f = new File(Environment.getExternalStorageDirectory() + "/"
-                            + context.getPackageName() + "/wifip2pshared-" + System.currentTimeMillis()
-                            + ".jpg");
-
                     if(PERMISSIONS_FLAG) {
+                        DataInputStream dIn = new DataInputStream(client.getInputStream());
+                        if(dIn.readByte()==1){
+                            FILE_EXTENSION = dIn.readUTF();
+                            System.out.println("Extension read: "+ FILE_EXTENSION);
+                        }
+
+                        final File f = new File(Environment.getExternalStorageDirectory() + "/"
+                                + context.getPackageName() + "/wifip2pshared-" + System.currentTimeMillis()
+                                + "." + FILE_EXTENSION);
+
                         File dirs = new File(f.getParent());
                         if (!dirs.exists())
                             dirs.mkdirs();
@@ -420,12 +450,38 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
                         InputStream inputstream = client.getInputStream();
                         copyFile(inputstream, new FileOutputStream(f));
                         System.out.println("File copied to device.");
+                        dIn.close();
+
+                        Intent intent = new Intent();
+                        intent.setAction(android.content.Intent.ACTION_VIEW);
+                        String FILE_TYPE;
+                        if(FILE_EXTENSION.equals("wav") || FILE_EXTENSION.equals("mp3"))
+                            FILE_TYPE = "audio/*";
+                        else if(FILE_EXTENSION.equals("jpg") || FILE_EXTENSION.equals("jpeg") || FILE_EXTENSION.equals("png") || FILE_EXTENSION.equals("gif"))
+                            FILE_TYPE = "image/*";
+                        else if(FILE_EXTENSION.equals("txt"))
+                            FILE_TYPE = "text/plain";
+                        else if(FILE_EXTENSION.equals("3gp") || FILE_EXTENSION.equals("mpg") || FILE_EXTENSION.equals("mpeg") ||
+                                FILE_EXTENSION.equals("mpe") || FILE_EXTENSION.equals("mp4") || FILE_EXTENSION.equals("avi"))
+                            FILE_TYPE = "video/*";
+                        else if(FILE_EXTENSION.equals("pdf"))
+                            FILE_TYPE = "application/pdf";
+                        else
+                            FILE_TYPE = "application/*";
+                        intent.setDataAndType(Uri.parse("file://" + f.getAbsolutePath()), FILE_TYPE);
+                        System.out.println("Inside onPostExecute");
+                        context.startActivity(intent);
                     }
                     else
                         System.out.println("No permission.");
 
-                    return f.getAbsolutePath();
+                    return null;
                 }else{
+                    DataOutputStream dOut = new DataOutputStream(client.getOutputStream());
+                    dOut.writeByte(1);
+                    dOut.writeUTF(getExtensionType(uri));
+                    dOut.flush();
+
                     OutputStream stream = client.getOutputStream();
                     ContentResolver cr = context.getContentResolver();
                     InputStream is = null;
@@ -436,6 +492,7 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
                         e.printStackTrace();
                     }
                     copyFile(is, stream);
+                    dOut.close();
                     return null;
                 }
             } catch (IOException e) {
@@ -452,16 +509,6 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
             }
         }
 
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                Toast.makeText(getApplicationContext(), "File successfully received.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent();
-                intent.setAction(android.content.Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file://" + result), "image/*");
-                context.startActivity(intent);
-            }
-        }
     }
     public static boolean copyFile(InputStream inputStream, OutputStream out) {
         byte buf[] = new byte[1024];
