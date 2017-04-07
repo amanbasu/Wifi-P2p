@@ -455,19 +455,35 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
                         Intent intent = new Intent();
                         intent.setAction(android.content.Intent.ACTION_VIEW);
                         String FILE_TYPE;
-                        if(FILE_EXTENSION.equals("wav") || FILE_EXTENSION.equals("mp3"))
-                            FILE_TYPE = "audio/*";
-                        else if(FILE_EXTENSION.equals("jpg") || FILE_EXTENSION.equals("jpeg") || FILE_EXTENSION.equals("png") || FILE_EXTENSION.equals("gif"))
-                            FILE_TYPE = "image/*";
-                        else if(FILE_EXTENSION.equals("txt"))
-                            FILE_TYPE = "text/plain";
-                        else if(FILE_EXTENSION.equals("3gp") || FILE_EXTENSION.equals("mpg") || FILE_EXTENSION.equals("mpeg") ||
-                                FILE_EXTENSION.equals("mpe") || FILE_EXTENSION.equals("mp4") || FILE_EXTENSION.equals("avi"))
-                            FILE_TYPE = "video/*";
-                        else if(FILE_EXTENSION.equals("pdf"))
-                            FILE_TYPE = "application/pdf";
-                        else
-                            FILE_TYPE = "application/*";
+                        switch (FILE_EXTENSION) {
+                            case "wav":
+                            case "mp3":
+                                FILE_TYPE = "audio/*";
+                                break;
+                            case "jpg":
+                            case "jpeg":
+                            case "png":
+                            case "gif":
+                                FILE_TYPE = "image/*";
+                                break;
+                            case "txt":
+                                FILE_TYPE = "text/plain";
+                                break;
+                            case "3gp":
+                            case "mpg":
+                            case "mpeg":
+                            case "mpe":
+                            case "mp4":
+                            case "avi":
+                                FILE_TYPE = "video/*";
+                                break;
+                            case "pdf":
+                                FILE_TYPE = "application/pdf";
+                                break;
+                            default:
+                                FILE_TYPE = "application/*";
+                                break;
+                        }
                         intent.setDataAndType(Uri.parse("file://" + f.getAbsolutePath()), FILE_TYPE);
                         System.out.println("Inside onPostExecute");
                         context.startActivity(intent);
