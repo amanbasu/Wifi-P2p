@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v4-23.4.0_7e24d3bed0b4127d45cb62a68ab5569e5c6a5f95/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-appcompat-v7-23.4.0_3d5b82460f32f4377d70a3998629c939879347fe/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="1865d4e3a22027dbb6595d3b2dfa389c1d75cd0f">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_b7e54d7e11bf98707e232c4ec6eebc731240225e/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/libs/internal_impl-23.4.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.4.0_7ba32f80dd8be6e6adc44ab1261ada20b47cd6e8/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-vector-drawable-23.4.0_38f1bd4703f1bced9d38a8c1be0fb3b79e93fcbd/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/aman/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.4.0/support-annotations-23.4.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-23.4.0_98bd44ebf56577edd297c72d5bf4fa4179b5110a/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="cd64b4c9d6bca7fce5f29db7876b3ede39c235c4">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_1a8dd0f453bcd66b6045d76793435a02206a7f4c/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="23.0.2"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="/Users/aman/AndroidStudioProjects/WifiP2p/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-animated-vector-drawable-23.4.0_b1ea5315a1cf18bdc98d0c2c8af66e2720c86cc2/classes.dex" />
+    </item>
+
+</items>
